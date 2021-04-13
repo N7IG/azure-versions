@@ -3,12 +3,25 @@
     "version": "1.0",
     "description": "Current info.json version",
     "manifest_version": 2,
-    "permissions": ["declarativeContent", "tabs", "<all_urls>"],
+    "permissions": ["declarativeContent", "tabs", "<all_urls>", "storage", { "fileSystem": ["write"] } ],
+    "options_page": "options/options.html",
     "browser_action": {
-        "default_popup": "popup.html",
+        "default_popup": "popup/popup.html",
         "default_icon": {
-            "16": "images/get_started16.png",
-            "32": "images/get_started32.png"
+            "16": "images/azure16.png",
+            "32": "images/azure32.png",
+            "48": "images/azure48.png",
+            "64": "images/azure64.png",
+            "128": "images/azure128.png",
+            "256": "images/azure256.png"
         }
+    },
+    "icons": {
+        "16": "images/azure16.png",
+        "32": "images/azure32.png",
+        "48": "images/azure48.png",
+        "64": "images/azure64.png",
+        "128": "images/azure128.png",
+        "256": "images/azure256.png"
     }
 }

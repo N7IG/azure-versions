@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Azure Versions Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <header>
+      <img class="logo" src="../images/azure-white.png" />
+      <div>
+        <div class="big-header-text">Azure versions</div>
+        <div class="small-header-text">Settings</div>
+      </div>
+    </header>
+    <main>
+      <div class="tool-bar">
+        <input
+          type="file"
+          accept=".json"
+          class="file-input"
+          style="display: none"
+        />
+        <button class="import">Import</button>
+        <button class="export">Export</button>
+      </div>
+      <hr />
+      <table class="config-table"></table>
+      <div class="row-container">
+        <table>
+          <tr class="new-row">
+            <td class="caret-td">
+              <div class="nodisplay">
+                <svg width="20" height="20"></svg>
+                <svg width="20" height="20"></svg>
+              </div>
+            </td>
+            <td class="name-td new-name">
+              <input class="new-name-input" type="text" placeholder="Name" />
+            </td>
+            <td class="path-td new-path">
+              <input
+                class="new-path-input"
+                type="text"
+                placeholder="URL for .json file containing version"
+              />
+            </td>
+            <td><button class="add-button">Add version</button></td>
+          </tr>
+        </table>
+      </div>
+    </main>
+
+    <script src="../utils/url-parse.utils.js"></script>
+    <script src="../utils/map-to-storable-item.util.js"></script>
+    <script src="../utils/export.util.js"></script>
+    <script src="../utils/import.util.js"></script>
+    <script src="../utils/get-config-from-storage.util.js"></script>
+    <script src="../utils/set-config-to-storage.util.js"></script>
+    <script src="../utils/is-duplacate-by-url.js"></script>
+
+    <script src="options.components.js"></script>
+    <script src="options.renderer.js"></script>
+    <script src="options.logic.js"></script>
+    <script src="options.event-listeners.js"></script>
+  </body>
+</html>
