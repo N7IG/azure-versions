@@ -3,6 +3,7 @@ const swtBaseUrl = "https://slb1-swt.visualstudio.com/";
 
 const tableRef = document.querySelector(".main-versions-table");
 const settingsButton = document.querySelector(".settings-button");
+const errorContainer = document.querySelector(".error-container");
 
 settingsButton.addEventListener("click", () => {
     chrome.tabs.create({ url: "../options/options.html" });
@@ -21,8 +22,10 @@ async function onFetchVersion(name, source) {
     const versionPromise = new Promise((resolve) => {
         const listener = (message) => {
             if (message.source === source) {
+                if (message.error) {
+                    console.log("Error:", message.error, "Source:", source);
+                }
                 chrome.runtime.onMessage.removeListener(listener);
-                console.log("message", message);
                 resolve(message.version);
             }
         };
@@ -31,17 +34,21 @@ async function onFetchVersion(name, source) {
     const versionTd = createAndAttachVersionRowElement(name);
     const version = await versionPromise;
 
-    versionTd.innerText = version.replace("{{", "").replace("}}", "");
+    versionTd.innerText = version
+        ? version.replace("{{", "").replace("}}", "")
+        : "request failed";
 }
 
 function getFetchAndSendFunctionCode(downloadPath) {
-    console.log("downloadPath", downloadPath);
     return `
         (async function() { 
             const version = await fetch("${downloadPath}", {credentials: "include"})
                 .then((response) => response.json())
-                .then((file) => file.version);
-
+                .then((file) => file.version)
+                .catch(e => {
+                    chrome.runtime.sendMessage({error: e, source: "${downloadPath}"});
+                });
+                
             chrome.runtime.sendMessage({version, source: "${downloadPath}"});
         })()`;
 }
@@ -93,24 +100,20 @@ function getTabWithCredentials(tabs) {
     return getAzureTab(tabs);
 }
 
-function setSourcesConfig() {
+function initialize() {
     chrome.storage.sync.get(["sourcesConfig"], function (result) {
         const sourcesConfig = JSON.parse(result.sourcesConfig);
 
         if (!sourcesConfig || sourcesConfig.length === 0) {
-            createImportButton();
+            renderError(
+                "There is no any configuration yet. \nYou can set it up in extension settings."
+            );
+            settingsButton.className = "import-button";
+            return;
         }
 
         startExecution(sourcesConfig);
     });
-}
-
-function createImportButton() {
-    const buttonEl = document.createElement("button");
-    buttonEl.className = "import-button";
-    buttonEl.innerText = "Import config file";
-
-    tableRef.appendChild(buttonEl);
 }
 
 function createAndAttachVersionRowElement(name) {
@@ -129,9 +132,19 @@ function createAndAttachVersionRowElement(name) {
     return versionTd;
 }
 
+function renderError(message) {
+    errorContainer.innerText = message;
+}
+
 function startExecution(sourcesConfig) {
     chrome.tabs.query({}, function (tabs) {
         const tab = getTabWithCredentials(tabs);
+        if (!tab) {
+            renderError(
+                "Could not fetch versions. \nPlease navigate to Azure tab and reopen."
+            );
+            return;
+        }
         const baseUrl = getBaseUrl(tab.url);
 
         sourcesConfig.forEach((config) =>
@@ -144,10 +157,4 @@ function startExecution(sourcesConfig) {
     });
 }
 
-setSourcesConfig();
-
-// TODO: add url validation: info.json + version
-// TODO: import validation
-// TODO: handle errors
-// TODO: improve UI
-// TODO: add hints
+initialize();

@@ -1,6 +1,4 @@
 function downloadFile(name, content) {
-    console.log("name", name);
-    console.log("content", content);
     var element = document.createElement("a");
     element.setAttribute(
         "href",

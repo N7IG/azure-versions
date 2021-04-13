@@ -24,6 +24,10 @@ function upDownHandler(event) {
  */
 async function onExportFile() {
     const sourcesConfig = await getConfigFromStorage();
+    if (!sourcesConfig?.length) {
+        alert("Error: Empty configurations can not be exported.");
+        return;
+    }
     downloadFile(
         "azure-versions-config.json",
         sourcesConfig.map(({ name, pageUrl }) => ({ name, pageUrl }))
@@ -35,8 +39,13 @@ async function onExportFile() {
  */
 async function onImportFile() {
     const inputElement = this;
-    const sourcesConfigRead = await readFile(inputElement);
-    await setConfigAndUpdate(sourcesConfigRead.map(mapToStorableItem));
+    try {
+        const sourcesConfigRead = await readConfigFile(inputElement);
+        await setConfigAndUpdate(sourcesConfigRead.map(mapToStorableItem));
+        inputElement.value = "";
+    } catch (error) {
+        alert(error);
+    }
 }
 
 function renderExistingConfig(sourcesConfig) {
@@ -52,7 +61,12 @@ function renderExistingConfig(sourcesConfig) {
  */
 async function addVersion() {
     try {
-        const newConfigItem = mapToStorableItem(getNewRowInputs());
+        const inputs = getNewRowInputs();
+        if (Object.values(inputs).some((input) => !input || !input.length)) {
+            throw new Error("Fields can't be empty.");
+        }
+
+        const newConfigItem = mapToStorableItem(inputs);
         const sourcesConfig = await getConfigFromStorage();
         if (isDuplicateByUrl(newConfigItem, sourcesConfig)) {
             throw new Error("This file already exists in the configuration.");
@@ -131,9 +145,6 @@ async function setConfigAndUpdate(config) {
  */
 async function displaySourcesConfig() {
     const sourcesConfig = await getConfigFromStorage();
-    if (!sourcesConfig || sourcesConfig.length === 0) {
-        // import
-    }
 
     renderExistingConfig(sourcesConfig);
 }

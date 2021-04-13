@@ -9,8 +9,12 @@ function getDownloadPathWithoutDomainAndOrganisation(url) {
 
 function getDomainAndOrganization(url) {
     if (url.includes("dev.azure.com")) {
-        const organization = url.match(/(?<=dev.azure.com\/)(.*?)(?=\/)/g)[0];
-        console.log("organization", organization);
+        const organizationRegexString = "(?<=dev.azure.com/)(.*?)(?=/)";
+        const organization = getMatchOrThrowError(
+            url,
+            organizationRegexString,
+            "Organization"
+        );
 
         return `dev.azure.com/${organization}`;
     }
@@ -29,7 +33,7 @@ function getDomainAndOrganization(url) {
 }
 
 function getProject(url, domainAndOrganization) {
-    const projectRegexString = `(?<=${domainAndOrganization}/)(.*?)(?=/)`;
+    const projectRegexString = `(?<=${domainAndOrganization}/)(.*?)(?=\/_git)`;
     return getMatchOrThrowError(url, projectRegexString, "Project");
 }
 
@@ -39,15 +43,17 @@ function getRepositoryName(url) {
 }
 
 function getPath(url) {
+    if (!url.includes(".json")) {
+        throw new Error("Only (.json) files are supported.");
+    }
+
     const pathRegexString = `(?<=path=)(.*?)(?=.json)`;
-    return (
-        getMatchOrThrowError(url, pathRegexString, "Repository name") + ".json"
-    );
+    return getMatchOrThrowError(url, pathRegexString, "Path") + ".json";
 }
 
 function throwParseError(missing) {
     throw new Error(
-        `'${missing}' can't be found in URL. Try to find desired .json file starting from domain (e.g. dev.azure.com) and use this URL.`
+        `'${missing}' can't be found in URL. \nTry to find desired (.json) file starting from domain (e.g. dev.azure.com) and use this URL.`
     );
 }
 
