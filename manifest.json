@@ -3,7 +3,7 @@
     "version": "1.0",
     "description": "Current info.json version",
     "manifest_version": 2,
-    "permissions": ["tabs", "<all_urls>", "storage"],
+    "permissions": ["tabs", "https://dev.azure.com/*", "https://*.visualstudio.com/*", "storage"],
     "options_page": "options/options.html",
     "browser_action": {
         "default_popup": "popup/popup.html",
