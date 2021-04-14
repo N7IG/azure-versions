@@ -42,10 +42,10 @@ async function onImportFile() {
     try {
         const sourcesConfigRead = await readConfigFile(inputElement);
         await setConfigAndUpdate(sourcesConfigRead.map(mapToStorableItem));
-        inputElement.value = "";
     } catch (error) {
         alert(error);
     }
+    inputElement.value = "";
 }
 
 function renderExistingConfig(sourcesConfig) {

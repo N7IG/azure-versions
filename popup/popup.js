@@ -100,20 +100,18 @@ function getTabWithCredentials(tabs) {
     return getAzureTab(tabs);
 }
 
-function initialize() {
-    chrome.storage.sync.get(["sourcesConfig"], function (result) {
-        const sourcesConfig = JSON.parse(result.sourcesConfig);
+async function initialize() {
+    const sourcesConfig = await getConfigFromStorage();
 
-        if (!sourcesConfig || sourcesConfig.length === 0) {
-            renderError(
-                "There is no any configuration yet. \nYou can set it up in extension settings."
-            );
-            settingsButton.className = "import-button";
-            return;
-        }
+    if (!sourcesConfig || sourcesConfig.length === 0) {
+        renderError(
+            "There is no any configuration yet. \nYou can set it up in extension settings."
+        );
+        settingsButton.className = "import-button";
+        return;
+    }
 
-        startExecution(sourcesConfig);
-    });
+    startExecution(sourcesConfig);
 }
 
 function createAndAttachVersionRowElement(name) {

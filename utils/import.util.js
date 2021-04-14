@@ -2,11 +2,15 @@ async function readConfigFile(inputElem) {
     return new Promise(function (resolve, reject) {
         const reader = new FileReader();
         reader.addEventListener("load", (event) => {
-            const result = JSON.parse(event.target.result);
-            if (!isConfigValid(result)) {
-                reject("File is not valid.");
+            try {
+                const result = JSON.parse(event.target.result);
+                if (!isConfigValid(result)) {
+                    reject("File is not valid.");
+                }
+                resolve(result);
+            } catch (error) {
+                reject(error);
             }
-            resolve(result);
         });
         reader.onerror = (e) => {
             reject("Error reading file:" + e);
